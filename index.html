@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3b2a20">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kon-Tiki">
+<title>Café Kon-Tiki</title>
+<style>
+:root{
+  --bg:#f6f0e8; --card:#fffaf3; --ink:#2b1f18; --muted:#7a6a5d; --line:#e2d6c6;
+  --brand:#3b2a20; --accent:#b5651d; --ok:#2e7d4f; --warn:#b7791f; --bad:#b3261e;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#1b1512; --card:#261d18; --ink:#f1e7db; --muted:#a8978a; --line:#3a2d25;
+         --brand:#120d0a; --accent:#e09a4f; --ok:#6fcf97; --warn:#e6b450; --bad:#ff8a80; }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+header{background:var(--brand);color:#f6f0e8;padding:12px 16px;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+header h1{font-size:18px;margin:0}
+header span{font-size:13px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+main{max-width:720px;margin:0 auto;padding:12px 16px}
+h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:20px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.grow{flex:1;min-width:0}
+.muted{color:var(--muted);font-size:13px}
+.big{font-size:22px;font-weight:700}
+.ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+button{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.small{padding:4px 9px;font-size:13px}
+button.danger{color:var(--bad)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border-radius:999px;padding:8px 14px}
+.chip.on{background:var(--brand);color:#f6f0e8;border-color:var(--brand)}
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.product{padding:16px 12px;text-align:left;border-radius:14px;min-height:92px}
+.product b{display:block;font-size:17px}
+.product .price{font-size:20px;font-weight:700;color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat .v{font-size:20px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;
+  padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;border-radius:0;background:none;padding:14px 4px;font-size:13px;color:var(--muted)}
+nav button.on{color:var(--accent);font-weight:700;box-shadow:inset 0 3px 0 var(--accent)}
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);width:min(420px,calc(100vw - 32px));padding:16px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h2{margin-top:0;color:var(--ink);text-transform:none;letter-spacing:0;font-size:17px}
+dialog p{margin:0 0 12px}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:10px}
+input[type=text],input[type=number]{display:block;width:100%;font:inherit;padding:9px 10px;margin-top:4px;border:1px solid var(--line);
+  border-radius:8px;background:var(--bg);color:var(--ink)}
+#toast{position:fixed;left:16px;right:16px;bottom:calc(84px + env(safe-area-inset-bottom));max-width:480px;margin:0 auto;background:var(--brand);
+  color:#f6f0e8;border-radius:12px;padding:10px 14px;display:none;justify-content:space-between;align-items:center;gap:12px}
+#toast button{background:none;border:1px solid #f6f0e8;color:#f6f0e8}
+.banner{background:#fbe9c9;color:#5c3d00;border:1px solid #e6c37a;border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:14px}
+summary{cursor:pointer}
+[hidden]{display:none!important}
+select{display:block;width:100%;font:inherit;padding:9px 10px;margin-top:4px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.seg label{flex:1;margin:0;border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--ink);font-size:15px;background:var(--bg)}
+.seg label:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.seg label:has(input:disabled){opacity:.45}
+.check{color:var(--ink);font-size:15px}
+pre{white-space:pre-wrap;font-size:13px;margin:0}
+</style>
+</head>
+<body>
+<header><h1>☕ Café Kon-Tiki</h1><span id="loc"></span></header>
+<main id="view"></main>
+<nav>
+  <button data-tab="order">Order</button>
+  <button data-tab="tabs">Tabs</button>
+  <button data-tab="stock">Stock</button>
+  <button data-tab="stats">Stats</button>
+  <button data-tab="settings">Settings</button>
+</nav>
+<div id="toast"><span></span><button data-act="undo">Undo</button></div>
+<dialog id="dlg"></dialog>
+
+<script>
+'use strict';
+/* ============================== core logic (pure, operates on a state object) ============================== */
+const KEY = 'cafe-kontiki-v1';
+
+function defaultState(now = Date.now()) {
+  return {
+    v: 1, seq: 1, location: '', locations: [], cup: false, who: 'walkin',
+    ingredients: {
+      beans:  { name: 'Coffee beans',    unit: 'g',  stock: 1000, cost: 0.025,  low: 150 },
+      almond: { name: 'Almond milk',     unit: 'ml', stock: 1000, cost: 0.0035, low: 300 },
+      milk:   { name: 'Regular milk',    unit: 'ml', stock: 0,    cost: 0.001,  low: 0 },
+      cups:   { name: 'Disposable cups', unit: 'pc', stock: 0,    cost: 0.10,   low: 0 },
+    },
+    products: [
+      { id: 'espresso',   name: 'Espresso',                 price: 1.0, recipe: { beans: 18 } },
+      { id: 'americano',  name: 'Americano',                price: 1.5, recipe: { beans: 18 } },
+      { id: 'cappuccino', name: 'Cappuccino',               price: 2.5, recipe: { beans: 18, almond: 130 } },
+    ],
+    people: [],   // {id, name}
+    entries: [],  // {id, ts, productId, name, use, cost, kind: sale|personal|gift, personId, personName, price, paidTs, location}
+    moves: [      // stock movements: {id, ts, ing, qty, paid, kind: purchase|adjust, note, prevCost}
+      { id: -1, ts: now, ing: 'beans',  qty: 1000, paid: 25,  kind: 'purchase', note: 'Opening stock', prevCost: 0.025 },
+      { id: -2, ts: now, ing: 'almond', qty: 1000, paid: 3.5, kind: 'purchase', note: 'Opening stock', prevCost: 0.0035 },
+    ],
+  };
+}
+
+function drinkUse(p, cup) {
+  const u = {};
+  for (const [k, q] of Object.entries(p.recipe)) if (q > 0) u[k] = q;
+  if (cup) u.cups = 1;
+  return u;
+}
+function useCost(s, use) {
+  // Rounded to the cent (half up) so that every total shown on screen adds up exactly
+  const raw = Object.entries(use).reduce((a, [k, q]) => a + q * s.ingredients[k].cost, 0);
+  return Math.round(raw * 100 + 1e-6) / 100;
+}
+function drinksLeft(s, p) {
+  const u = drinkUse(p, false);
+  return Math.max(0, Math.min(...Object.entries(u).map(([k, q]) => Math.floor(s.ingredients[k].stock / q))));
+}
+
+// who: 'walkin' | 'personal' | 'gift' | <person id>
+// opts: { price, paid, location } — defaults: menu price, walk-in paid / named person on tab, current location
+function addDrink(s, productId, who, ts = Date.now(), opts = {}) {
+  const p = s.products.find(x => x.id === productId);
+  if (!p) throw new Error('Unknown product');
+  const use = drinkUse(p, s.cup);
+  const e = { id: s.seq++, ts, productId, name: p.name, use, cost: useCost(s, use), kind: 'sale',
+              personId: null, personName: '', price: opts.price ?? p.price, paidTs: null,
+              location: opts.location ?? s.location };
+  if (who === 'personal' || who === 'gift') { e.kind = who; e.price = 0; }
+  else if (who === 'walkin') { e.paidTs = ts; }   // nobody to chase later, so always paid
+  else {
+    const person = s.people.find(x => x.id === who);
+    if (!person) throw new Error('Unknown person');
+    e.personId = person.id; e.personName = person.name;
+    if (opts.paid) e.paidTs = ts;
+  }
+  // On the house for a named person or a walk-in: kept under their name, never owed
+  if (opts.gift && e.kind === 'sale') { e.kind = 'gift'; e.price = 0; e.paidTs = null; }
+  for (const [k, q] of Object.entries(use)) s.ingredients[k].stock -= q;
+  s.entries.push(e);
+  return e;
+}
+function removeEntry(s, id) {
+  const i = s.entries.findIndex(e => e.id === id);
+  if (i < 0) return false;
+  for (const [k, q] of Object.entries(s.entries[i].use)) s.ingredients[k].stock += q;
+  s.entries.splice(i, 1);
+  return true;
+}
+// A person belongs to the place where their tab was opened
+function addPerson(s, name, location = s.location) {
+  const p = { id: s.seq++, name, location };
+  s.people.push(p);
+  return p;
+}
+function peopleAt(s, location) {
+  return s.people.filter(p => p.location === undefined || p.location === location);
+}
+function openEntries(s, personId) {
+  return s.entries.filter(e => e.kind === 'sale' && e.personId === personId && !e.paidTs);
+}
+function openAmount(s, personId) {
+  return openEntries(s, personId).reduce((a, e) => a + e.price, 0);
+}
+function settle(s, personId, ts = Date.now()) {
+  let total = 0;
+  for (const e of openEntries(s, personId)) { e.paidTs = ts; total += e.price; }
+  return total;
+}
+function payEntry(s, id, ts = Date.now()) {
+  const e = s.entries.find(x => x.id === id);
+  if (!e || e.kind !== 'sale' || e.paidTs) return false;
+  e.paidTs = ts;
+  return true;
+}
+// Moving weighted-average cost: new cost = (stock on hand * old cost + amount paid) / new stock
+function purchase(s, ing, qty, paid, ts = Date.now(), note = '') {
+  const g = s.ingredients[ing];
+  if (!(qty > 0)) throw new Error('Quantity must be positive');
+  const base = Math.max(g.stock, 0);
+  const m = { id: s.seq++, ts, ing, qty, paid, kind: 'purchase', note, prevCost: g.cost };
+  g.cost = (base * g.cost + paid) / (base + qty);
+  g.stock += qty;
+  s.moves.push(m);
+  return m;
+}
+function adjust(s, ing, newLevel, ts = Date.now(), note = '') {
+  const g = s.ingredients[ing];
+  const m = { id: s.seq++, ts, ing, qty: newLevel - g.stock, paid: 0, kind: 'adjust', note };
+  g.stock = newLevel;
+  s.moves.push(m);
+  return m;
+}
+function removeMove(s, id) {
+  const i = s.moves.findIndex(m => m.id === id);
+  if (i < 0) return false;
+  const m = s.moves[i], g = s.ingredients[m.ing];
+  g.stock -= m.qty;
+  const later = s.moves.slice(i + 1).some(x => x.ing === m.ing && x.kind === 'purchase');
+  if (m.kind === 'purchase' && !later) g.cost = m.prevCost;
+  s.moves.splice(i, 1);
+  return true;
+}
+function stats(s, from = 0, to = Infinity) {
+  const r = { sold: 0, revenue: 0, received: 0, open: 0, cogs: 0, gifts: 0, giftCost: 0,
+              personal: 0, personalCost: 0, personalUse: {}, spent: 0, byProduct: {}, byLocation: {} };
+  for (const e of s.entries) {
+    if (e.ts < from || e.ts >= to) continue;
+    const bp = r.byProduct[e.name] ??= { sale: 0, gift: 0, personal: 0 };
+    bp[e.kind]++;
+    if (e.kind === 'sale') {
+      r.sold++; r.revenue += e.price; r.cogs += e.cost;
+      if (e.paidTs) r.received += e.price; else r.open += e.price;
+      const bl = r.byLocation[e.location || '(no location)'] ??= { drinks: 0, revenue: 0, profit: 0 };
+      bl.drinks++; bl.revenue += e.price; bl.profit += e.price - e.cost;
+    } else if (e.kind === 'gift') { r.gifts++; r.giftCost += e.cost; }
+    else {
+      r.personal++; r.personalCost += e.cost;
+      for (const [k, q] of Object.entries(e.use)) r.personalUse[k] = (r.personalUse[k] || 0) + q;
+    }
+  }
+  for (const m of s.moves) if (m.kind === 'purchase' && m.ts >= from && m.ts < to) r.spent += m.paid;
+  r.profit = r.revenue - r.cogs;   // margin on drinks sold
+  r.net = r.profit - r.giftCost;   // after "on the house" drinks (personal use is not a business cost)
+  return r;
+}
+
+/* ============================== self-test ============================== */
+function selfTest() {
+  const out = []; let fail = 0;
+  const eq = (label, got, want) => {
+    const ok = typeof want === 'number' ? Math.abs(got - want) < 1e-9 : got === want;
+    if (!ok) fail++;
+    out.push(`${ok ? 'PASS' : 'FAIL'}  ${label}: got ${typeof got === 'number' ? +got.toFixed(6) : got}, want ${want}`);
+  };
+  const s = defaultState(1000);
+  const ana = addPerson(s, 'Ana');
+  const e1 = addDrink(s, 'espresso', 'walkin', 2000);
+  s.cup = true;
+  const e2 = addDrink(s, 'cappuccino', ana.id, 3000);
+  s.cup = false;
+  const e3 = addDrink(s, 'americano', 'personal', 4000);
+  const e4 = addDrink(s, 'espresso', 'gift', 5000);
+  eq('espresso cost, no cup (18 g x 0.025)', e1.cost, 0.45);
+  eq('cappuccino cost with cup (0.45 + 0.455 + 0.10 = 1.005, rounded)', e2.cost, 1.01);
+  eq('personal drink is charged 0', e3.price, 0);
+  eq('beans left after 4 drinks (1000 - 4 x 18)', s.ingredients.beans.stock, 928);
+  eq('almond milk left (1000 - 130)', s.ingredients.almond.stock, 870);
+  eq('cups left (0 - 1)', s.ingredients.cups.stock, -1);
+  let r = stats(s);
+  eq('revenue (1.00 + 2.50)', r.revenue, 3.5);
+  eq('received (walk-in only)', r.received, 1);
+  eq('open on tabs', r.open, 2.5);
+  eq('Ana owes', openAmount(s, ana.id), 2.5);
+  eq('cost of drinks sold (0.45 + 1.01)', r.cogs, 1.46);
+  eq('profit on sales (3.50 - 1.46)', r.profit, 2.04);
+  eq('on-the-house cost', r.giftCost, 0.45);
+  eq('net after on-the-house (2.04 - 0.45)', r.net, 1.59);
+  eq('personal consumption cost', r.personalCost, 0.45);
+  eq('personal beans used (g)', r.personalUse.beans, 18);
+  eq('supplies spent (25 + 3.50)', r.spent, 28.5);
+  eq('settle returns', settle(s, ana.id, 6000), 2.5);
+  r = stats(s);
+  eq('received after settle', r.received, 3.5);
+  eq('open after settle', r.open, 0);
+  purchase(s, 'beans', 500, 20, 7000);
+  eq('beans stock after buying 500 g', s.ingredients.beans.stock, 1428);
+  eq('beans avg cost ((928 x 0.025 + 20) / 1428)', s.ingredients.beans.cost, 43.2 / 1428);
+  removeEntry(s, e4.id);
+  eq('undo a drink restores beans', s.ingredients.beans.stock, 1446);
+  const m = adjust(s, 'almond', 800, 8000);
+  eq('adjust logs the difference', m.qty, -70);
+  eq('cappuccinos left (min of 1446/18 and 800/130)', drinksLeft(s, s.products[2]), 6);
+  eq('period filter excludes earlier drinks', stats(s, 3500).sold, 0);
+  // Order confirmation: custom price, paid or pending, location picked per drink
+  const t = defaultState(0);
+  const bo = addPerson(t, 'Bo');
+  const c1 = addDrink(t, 'espresso', bo.id, 10, { price: 2, paid: true, location: 'Banos' });
+  eq('custom price is kept', c1.price, 2);
+  eq('named person who paid at once owes nothing', openAmount(t, bo.id), 0);
+  eq('location chosen at order time', c1.location, 'Banos');
+  const c2 = addDrink(t, 'americano', bo.id, 20, { paid: false, location: 'Cuenca' });
+  const c3 = addDrink(t, 'espresso', 'walkin', 30, { paid: false });
+  eq('walk-in is always recorded as paid', !!c3.paidTs, true);
+  eq('pending on Bo tab (americano 1.50)', openAmount(t, bo.id), 1.5);
+  payEntry(t, c2.id, 40);
+  eq('paying a single item clears it', openAmount(t, bo.id), 0);
+  eq('sales split over 3 locations', Object.keys(stats(t).byLocation).length, 3);
+  // On the house for a named person
+  const g1 = addDrink(t, 'cappuccino', bo.id, 50, { gift: true, paid: true, location: 'Cuenca' });
+  eq('on the house keeps the person name', g1.personName, 'Bo');
+  eq('on the house is charged 0', g1.price, 0);
+  eq('on the house does not add to the tab', openAmount(t, bo.id), 0);
+  eq('on the house counts as a gift with its cost', stats(t).giftCost, 0.91);
+  // People are listed per location
+  addPerson(t, 'Cy', 'Cuenca'); addPerson(t, 'Di', 'Cuenca'); addPerson(t, 'Eli', 'Banos');
+  eq('people at Cuenca', peopleAt(t, 'Cuenca').map(p => p.name).join(','), 'Cy,Di');
+  eq('people at Banos', peopleAt(t, 'Banos').map(p => p.name).join(','), 'Eli');
+  eq('people at a new place', peopleAt(t, 'Quito').length, 0);
+  // Example from the project notes: 10 drinks/day, half espresso half cappuccino, disposable cups
+  const d = defaultState(0); d.cup = true;
+  for (let i = 0; i < 5; i++) { addDrink(d, 'espresso', 'walkin', 1); addDrink(d, 'cappuccino', 'walkin', 1); }
+  eq('notes example: 5 x (1.00 - 0.55) + 5 x (2.50 - 1.01)', stats(d).profit, 9.7);
+  out.push(fail ? `${fail} FAILED` : `ALL ${out.length} PASSED`);
+  return { fail, out };
+}
+
+/* ============================== UI ============================== */
+const $ = q => document.querySelector(q);
+const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = n => (n < -0.004 ? '-' : '') + '$' + Math.abs(n).toFixed(2);
+const amount = (n, u) => (Math.round(n * 10) / 10).toLocaleString('en-US') + ' ' + u;
+const time = ts => new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const day = ts => new Date(ts).toLocaleDateString([], { day: '2-digit', month: 'short' });
+const startOfDay = () => new Date().setHours(0, 0, 0, 0);
+
+let S = load();
+const ui = { tab: 'order', period: 'today', lastId: null };
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) return migrate(Object.assign(defaultState(), JSON.parse(raw)));
+  } catch (err) { console.error(err); }
+  return defaultState();
+}
+function migrate(s) {
+  if (!Array.isArray(s.locations)) s.locations = [];
+  s.cup = false;   // disposable cups are not used; the option was removed from the UI
+  if (s.location && !s.locations.includes(s.location)) s.locations.push(s.location);
+  return s;
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (err) { toast('Could not save: ' + err.message); }
+}
+function whoLabel(e) {
+  if (e.kind === 'personal') return 'Me';
+  const who = e.personId ? e.personName : e.kind === 'gift' ? '' : 'Walk-in';
+  return e.kind === 'gift' ? (who ? who + ' · on the house' : 'On the house') : who;
+}
+function toast(msg, undoable) {
+  const t = $('#toast');
+  t.querySelector('span').textContent = msg;
+  t.querySelector('button').style.display = undoable ? '' : 'none';
+  t.style.display = 'flex';
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => t.style.display = 'none', 5000);
+}
+function ask(title, fields, onOk, opts = {}) {
+  const d = $('#dlg');
+  d.innerHTML = `<form><h2>${esc(title)}</h2>${opts.text ? `<p>${esc(opts.text)}</p>` : ''}` +
+    fields.map(f => `<label>${esc(f.label)}<input name="${f.name}" type="${f.type || 'text'}"` +
+      `${f.type === 'number' ? ' step="any" inputmode="decimal"' : ''} value="${esc(f.value ?? '')}"${f.optional ? '' : ' required'}></label>`).join('') +
+    `<div class="row" style="justify-content:flex-end"><button type="button" id="dlgCancel">Cancel</button>` +
+    `<button class="primary" id="dlgOk">${esc(opts.ok || 'Save')}</button></div></form>`;
+  $('#dlgCancel').onclick = () => d.close();
+  d.querySelector('form').onsubmit = ev => {
+    ev.preventDefault();
+    const fd = new FormData(ev.target), v = {};
+    for (const f of fields) v[f.name] = f.type === 'number' ? Number(fd.get(f.name) || 0) : String(fd.get(f.name)).trim();
+    d.close();
+    onOk(v);
+  };
+  d.showModal();
+}
+function commit() { save(); render(); }
+
+const views = {
+  order() {
+    const low = Object.values(S.ingredients).filter(g => g.low > 0 && g.stock <= g.low);
+    const today = S.entries.filter(e => e.ts >= startOfDay()).reverse();
+    const pending = S.entries.filter(e => e.kind === 'sale' && !e.paidTs).reduce((a, e) => a + e.price, 0);
+    return `
+      ${low.length ? `<div class="banner">Low stock: ${low.map(g => `${esc(g.name)} (${amount(g.stock, g.unit)})`).join(', ')}</div>` : ''}
+      ${pending > 0 ? `<div class="card row between"><span>Pending on tabs</span><b class="warn">${money(pending)}</b></div>` : ''}
+      <h2>Tap a drink</h2>
+      <div class="products">
+        ${S.products.map(p => `<button class="product" data-act="drink" data-id="${esc(p.id)}">
+          <b>${esc(p.name)}</b><span class="price">${money(p.price)}</span>
+          <div class="muted">cost ${money(useCost(S, drinkUse(p, S.cup)))} · ${drinksLeft(S, p)} left</div></button>`).join('')}
+      </div>
+      <h2>My own coffee</h2>
+      <div class="card">
+        <div class="chips">${S.products.map(p => `<button class="chip" data-act="mine" data-id="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div>
+      </div>
+      <h2>Today (${today.length})</h2>
+      <div class="card">${today.length ? `<table>${today.map(e => `<tr>
+        <td class="muted">${time(e.ts)}</td><td>${esc(e.name)}<div class="muted">${esc(e.location || '')}</div></td>
+        <td>${esc(whoLabel(e))}${e.kind !== 'sale' ? '' : e.paidTs ? ' <span class="ok">paid</span>' : ' <span class="warn">pending</span>'}</td>
+        <td class="n">${money(e.price)}</td><td class="n"><button class="small danger" data-act="delEntry" data-id="${e.id}">✕</button></td></tr>`).join('')}</table>`
+        : '<span class="muted">Nothing yet today.</span>'}</div>`;
+  },
+
+  tabs() {
+    const people = S.people.map(p => ({ p, open: openAmount(S, p.id), all: S.entries.filter(e => e.personId === p.id) }))
+      .sort((a, b) => (locOf(b) === S.location) - (locOf(a) === S.location) || locOf(a).localeCompare(locOf(b)) || b.open - a.open);
+    function locOf(x) { return x.p.location ?? ''; }
+    const total = people.reduce((a, x) => a + x.open, 0);
+    // Group heading whenever the location changes (current location comes first)
+    const head = i => i && locOf(people[i - 1]) === locOf(people[i]) ? '' :
+      `<div class="muted" style="margin:14px 0 6px;font-weight:600">${esc(locOf(people[i]) || 'No location')}${locOf(people[i]) === S.location ? ' (current)' : ''} · ${
+        money(people.filter(x => locOf(x) === locOf(people[i])).reduce((a, x) => a + x.open, 0))} owed · ${
+        money(people.filter(x => locOf(x) === locOf(people[i])).reduce((a, x) => a + spentOf(x.all), 0))} spent</div>`;
+    // Everything charged to the person, paid or not (on-the-house drinks are 0)
+    function spentOf(all) { return all.filter(e => e.kind === 'sale').reduce((a, e) => a + e.price, 0); }
+    return `
+      <div class="row between"><h2>Open tabs · ${money(total)} owed</h2><button data-act="newPerson">+ New tab</button></div>
+      ${people.length ? people.map(({ p, open, all }, i) => `${head(i)}<div class="card">
+        <div class="row between"><div><b>${esc(p.name)}</b><div class="muted">${all.length} drink(s)</div></div>
+          <div class="row"><span style="text-align:right"><span class="big">${money(spentOf(all))}</span>
+            <div class="${open > 0 ? 'warn' : 'muted'}" style="font-size:13px;font-weight:600">${open > 0 ? `owes ${money(open)}` : 'spent'}</div></span>
+          ${open > 0 ? `<button class="primary" data-act="settle" data-id="${p.id}">Settle</button>`
+                     : `<button class="small danger" data-act="delPerson" data-id="${p.id}">Remove</button>`}</div></div>
+        ${all.length ? `<details${open > 0 ? ' open' : ''}><summary class="muted">Details</summary><table>${all.slice().sort((a, b) => !!a.paidTs - !!b.paidTs || b.ts - a.ts).map(e => `<tr>
+          <td class="muted">${day(e.ts)} ${time(e.ts)}</td><td>${esc(e.name)}<div class="muted">${esc(e.location || '')}</div></td><td class="n">${money(e.price)}</td>
+          <td class="n">${e.kind === 'gift' ? `<span class="muted">on the house</span>
+            <button class="small danger" data-act="delEntry" data-id="${e.id}">✕</button>`
+            : e.paidTs ? '<span class="ok">paid</span>' : `<button class="small" data-act="payEntry" data-id="${e.id}">Paid</button>
+            <button class="small danger" data-act="delEntry" data-id="${e.id}">✕</button>`}</td></tr>`).join('')}</table></details>` : ''}
+      </div>`).join('') : '<div class="card muted">No tabs yet. Create one and pick it on the Order screen.</div>'}`;
+  },
+
+  stock() {
+    const moves = S.moves.slice().reverse().slice(0, 20);
+    return `<h2>Supplies</h2>
+      ${Object.entries(S.ingredients).filter(([k]) => k !== 'cups').map(([k, g]) => {
+        const cls = g.stock < 0 ? 'bad' : (g.low > 0 && g.stock <= g.low) ? 'warn' : '';
+        return `<div class="card"><div class="row between">
+          <div><b>${esc(g.name)}</b><div class="muted">avg cost $${(+g.cost.toFixed(4))}/${g.unit}${g.low > 0 ? ` · alert at ${amount(g.low, g.unit)}` : ''}</div></div>
+          <span class="big ${cls}">${amount(g.stock, g.unit)}</span></div>
+          <div class="row" style="margin-top:8px">
+            <button class="primary small" data-act="buy" data-id="${k}">+ Purchase</button>
+            <button class="small" data-act="count" data-id="${k}">Set actual level</button>
+            <button class="small" data-act="editIng" data-id="${k}">Edit</button></div></div>`;
+      }).join('')}
+      <h2>Recent movements</h2>
+      <div class="card">${moves.length ? `<table>${moves.map(m => { const g = S.ingredients[m.ing]; return `<tr>
+        <td class="muted">${day(m.ts)}</td><td>${esc(g.name)}<div class="muted">${m.kind}${m.note ? ' · ' + esc(m.note) : ''}</div></td>
+        <td class="n">${m.qty > 0 ? '+' : ''}${amount(m.qty, g.unit)}</td><td class="n">${m.kind === 'purchase' ? money(m.paid) : ''}</td>
+        <td class="n"><button class="small danger" data-act="delMove" data-id="${m.id}">✕</button></td></tr>`; }).join('')}</table>`
+        : '<span class="muted">No movements.</span>'}
+      </div><p class="muted">Drinks recorded on the Order screen are deducted automatically.</p>`;
+  },
+
+  stats() {
+    const periods = { today: ['Today', startOfDay()], week: ['7 days', Date.now() - 7 * 864e5], month: ['30 days', Date.now() - 30 * 864e5], all: ['All time', 0] };
+    const r = stats(S, periods[ui.period][1]);
+    const stat = (label, v, cls = '') => `<div class="stat"><div class="muted">${label}</div><div class="v ${cls}">${v}</div></div>`;
+    const pu = r.personalUse;
+    return `
+      <div class="chips" style="margin-top:8px">${Object.entries(periods).map(([k, [label]]) =>
+        `<button class="chip ${ui.period === k ? 'on' : ''}" data-act="period" data-id="${k}">${label}</button>`).join('')}</div>
+      <h2>Business</h2>
+      <div class="grid">
+        ${stat('Drinks sold', r.sold)}
+        ${stat('Sales', money(r.revenue))}
+        ${stat('Cash received', money(r.received), 'ok')}
+        ${stat('Still on tabs', money(r.open), r.open > 0 ? 'warn' : '')}
+        ${stat('Cost of drinks sold', money(r.cogs))}
+        ${stat('Profit on sales', money(r.profit), r.profit >= 0 ? 'ok' : 'bad')}
+        ${stat(`On the house (${r.gifts})`, money(-r.giftCost))}
+        ${stat('Net earned', money(r.net), r.net >= 0 ? 'ok' : 'bad')}
+      </div>
+      <p class="muted">Net earned = sales − cost of drinks sold − cost of on-the-house drinks. Supplies bought in this period: ${money(r.spent)}.</p>
+      <h2>My own consumption (outside the business)</h2>
+      <div class="grid">
+        ${stat('Drinks', r.personal)}
+        ${stat('Cost', money(r.personalCost))}
+        ${stat('Beans', amount(pu.beans || 0, 'g'))}
+        ${stat('Milk', amount((pu.almond || 0) + (pu.milk || 0), 'ml'))}
+      </div>
+      <h2>By drink</h2>
+      <div class="card">${Object.keys(r.byProduct).length ? `<table><tr><th>Drink</th><th class="n">Sold</th><th class="n">House</th><th class="n">Me</th></tr>
+        ${Object.entries(r.byProduct).map(([n, c]) => `<tr><td>${esc(n)}</td><td class="n">${c.sale}</td><td class="n">${c.gift}</td><td class="n">${c.personal}</td></tr>`).join('')}</table>`
+        : '<span class="muted">No drinks in this period.</span>'}</div>
+      <h2>By location</h2>
+      <div class="card">${Object.keys(r.byLocation).length ? `<table><tr><th>Place</th><th class="n">Sold</th><th class="n">Sales</th><th class="n">Profit</th></tr>
+        ${Object.entries(r.byLocation).map(([n, c]) => `<tr><td>${esc(n)}</td><td class="n">${c.drinks}</td><td class="n">${money(c.revenue)}</td><td class="n">${money(c.profit)}</td></tr>`).join('')}</table>`
+        : '<span class="muted">No sales in this period.</span>'}</div>`;
+  },
+
+  settings() {
+    return `
+      <div class="row between"><h2>Locations</h2><button data-act="newLoc">+ Add location</button></div>
+      <div class="card">${S.locations.length ? `<table>${S.locations.map((l, i) => `<tr><td>${esc(l)}${l === S.location ? ' <span class="ok">· current</span>' : ''}</td>
+        <td class="n">${l === S.location ? '' : `<button class="small" data-act="useLoc" data-id="${i}">Use</button>`}
+        <button class="small danger" data-act="delLoc" data-id="${i}">✕</button></td></tr>`).join('')}</table>`
+        : '<span class="muted">None yet. You can also add one when recording a drink.</span>'}</div>
+      <p class="muted">The current location comes preselected when you record a drink.</p>
+      <div class="row between"><h2>Menu</h2><button data-act="newProduct">+ Add drink</button></div>
+      <div class="card"><table>${S.products.map(p => `<tr><td><b>${esc(p.name)}</b>
+        <div class="muted">${Object.entries(p.recipe).filter(([, q]) => q > 0).map(([k, q]) => amount(q, S.ingredients[k].unit) + ' ' + S.ingredients[k].name.toLowerCase()).join(' + ')}</div></td>
+        <td class="n">${money(p.price)}</td>
+        <td class="n"><button class="small" data-act="editProduct" data-id="${esc(p.id)}">Edit</button>
+        <button class="small danger" data-act="delProduct" data-id="${esc(p.id)}">✕</button></td></tr>`).join('')}</table></div>
+      <h2>Backup</h2>
+      <div class="card">
+        <p class="muted" style="margin-top:0">Everything is stored only in this browser on this device. Export a backup regularly.</p>
+        <div class="row"><button class="primary" data-act="export">Export backup</button>
+        <button data-act="import">Import backup</button>
+        <button data-act="selftest">Run self-test</button>
+        <button class="danger" data-act="reset">Erase everything</button></div>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+      </div>`;
+  },
+};
+
+function render() {
+  $('#loc').textContent = S.location || '';
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === ui.tab));
+  $('#view').innerHTML = views[ui.tab]();
+}
+
+function productForm(p, onOk) {
+  ask(p ? 'Edit drink' : 'New drink', [
+    { name: 'name', label: 'Name', value: p?.name },
+    { name: 'price', label: 'Price (USD)', type: 'number', value: p?.price },
+    { name: 'beans', label: 'Coffee beans (g)', type: 'number', value: p?.recipe.beans ?? 18 },
+    { name: 'almond', label: 'Almond milk (ml)', type: 'number', value: p?.recipe.almond ?? 0 },
+    { name: 'milk', label: 'Regular milk (ml)', type: 'number', value: p?.recipe.milk ?? 0 },
+  ], v => onOk({ name: v.name, price: v.price, recipe: { beans: v.beans, almond: v.almond, milk: v.milk } }));
+}
+
+// Confirmation shown on every drink: where, for whom, price, paid or pending
+function orderDialog(productId) {
+  const p = S.products.find(x => x.id === productId), d = $('#dlg');
+  if (typeof S.who === 'number' && !S.people.some(x => x.id === S.who)) S.who = 'walkin';
+  const opt = (v, label, sel) => `<option value="${esc(v)}"${sel ? ' selected' : ''}>${esc(label)}</option>`;
+  d.innerHTML = `<form><h2>${esc(p.name)}</h2>
+    <label>Where
+      <select name="loc">${S.locations.length ? '' : opt('', '(no location)', true)}
+        ${S.locations.map(l => opt(l, l, l === S.location)).join('')}${opt('__new', '+ Add location…')}</select>
+      <input type="text" name="newLoc" placeholder="Campsite / town" hidden></label>
+    <label>For whom
+      <select name="who"></select>
+      <input type="text" name="newWho" placeholder="Name (and van, if it helps)" hidden></label>
+    <div class="muted" style="margin-bottom:10px">Quantity
+      <div class="row" style="margin-top:4px">
+        <button type="button" id="qMinus" aria-label="Less">−</button>
+        <input type="number" name="qty" min="1" max="50" step="1" value="1" inputmode="numeric" required style="width:72px;margin:0;text-align:center">
+        <button type="button" id="qPlus" aria-label="More">+</button>
+        <b id="qTotal" style="color:var(--ink);font-size:15px"></b></div></div>
+    <label id="priceBox">Price each (USD)<input type="number" name="price" step="any" min="0" inputmode="decimal" value="${p.price}" required></label>
+    <div class="seg"><label><input type="radio" name="paid" value="1"> Paid now</label>
+      <label><input type="radio" name="paid" value="0"> Not paid yet</label>
+      <label><input type="radio" name="paid" value="gift"> On the house</label></div>
+    <div class="row" style="justify-content:flex-end"><button type="button" id="dlgCancel">Cancel</button>
+      <button class="primary" id="dlgOk">Record</button></div></form>`;
+  const f = d.querySelector('form'), el = f.elements;
+  const sync = whoChanged => {
+    el.newLoc.hidden = el.loc.value !== '__new';
+    el.newWho.hidden = el.who.value !== '__new';
+    const walkin = el.who.value === 'walkin';
+    el.paid[1].disabled = walkin;            // a walk-in has no tab to leave it on
+    if (walkin && el.paid.value === '0') el.paid.value = '1';
+    const free = el.paid.value === 'gift';
+    $('#priceBox').hidden = free;
+    el.price.required = !free;
+  };
+  // The people offered are the ones with a tab at the selected location
+  const fillWho = () => {
+    const keep = el.who.value || String(S.who);
+    const here = el.loc.value === '__new' ? [] : peopleAt(S, el.loc.value);
+    el.who.innerHTML = here.map(x => { const o = openAmount(S, x.id); return opt(x.id, x.name + (o > 0 ? ` · owes ${money(o)}` : '')); }).join('') +
+      opt('walkin', 'Walk-in (no name)') + opt('__new', '+ Add person…');
+    el.who.value = keep !== '__new' && [...el.who.options].some(o => o.value === keep) ? keep : 'walkin';
+  };
+  el.loc.onchange = () => { fillWho(); sync(true); if (!el.newLoc.hidden) el.newLoc.focus(); };
+  el.who.onchange = () => { sync(true); if (!el.newWho.hidden) el.newWho.focus(); };
+  const qty = () => Math.min(50, Math.max(1, Math.floor(Number(el.qty.value) || 1)));
+  const total = () => {
+    $('#qTotal').textContent = qty() > 1 && el.paid.value !== 'gift' ?`Total ${money(qty() * Number(el.price.value || 0))}` : '';
+  };
+  $('#qMinus').onclick = () => { el.qty.value = Math.max(1, qty() - 1); total(); };
+  $('#qPlus').onclick = () => { el.qty.value = Math.min(50, qty() + 1); total(); };
+  el.qty.oninput = el.price.oninput = total;
+  el.who.addEventListener('change', total);
+  [...el.paid].forEach(r => r.onchange = () => { sync(false); total(); });
+  fillWho();
+  el.paid.value = '1';                      // paid is the default; "Not paid yet" is the exception
+  sync(true);
+  $('#dlgCancel').onclick = () => d.close();
+  f.onsubmit = ev => {
+    ev.preventDefault();
+    let loc = el.loc.value, who = el.who.value;
+    if (loc === '__new') { loc = el.newLoc.value.trim(); if (!loc) return el.newLoc.focus(); }
+    if (who === '__new' && !el.newWho.value.trim()) return el.newWho.focus();
+    if (loc && !S.locations.includes(loc)) S.locations.push(loc);
+    S.location = loc;
+    if (who === '__new') who = addPerson(S, el.newWho.value.trim(), loc).id;
+    else if (/^\d+$/.test(who)) who = Number(who);
+    S.who = who;
+    // One entry per drink, so stock, tabs and stats need no special case for quantity
+    const n = qty(), now = Date.now(), made = [];
+    for (let i = 0; i < n; i++) {
+      made.push(addDrink(S, productId, who, now, { price: Number(el.price.value || 0), paid: el.paid.value === '1', gift: el.paid.value === 'gift', location: loc }));
+    }
+    const e = made[0];
+    ui.lastIds = made.map(x => x.id);
+    d.close(); commit();
+    toast(`${n > 1 ? n + ' × ' : ''}${e.name} → ${whoLabel(e)} · ${e.kind !== 'sale' ? 'no charge' : money(e.price * n) + (e.paidTs ? ' paid' : ' pending')}`, true);
+  };
+  d.showModal();
+}
+
+const actions = {
+  newPerson() {
+    ask(`New tab at ${S.location || '(no location)'}`, [{ name: 'name', label: 'Name (and van/site, if it helps)' }], v => {
+      if (!v.name) return;
+      S.who = addPerson(S, v.name).id; commit();
+    });
+  },
+  drink(id) { orderDialog(id); },
+  mine(id) {
+    const cup = S.cup; S.cup = false;          // my own mug
+    const e = addDrink(S, id, 'personal');
+    S.cup = cup; ui.lastIds = [e.id]; commit();
+    toast(`${e.name} → my own · no charge`, true);
+  },
+  payEntry(id) { if (payEntry(S, Number(id))) commit(); },
+  undo() {
+    const n = (ui.lastIds || []).filter(id => removeEntry(S, id)).length;
+    ui.lastIds = [];
+    if (n) { commit(); toast(n > 1 ? `Removed ${n} drinks.` : 'Removed.'); }
+  },
+  delEntry(id) {
+    const e = S.entries.find(x => x.id === Number(id));
+    if (!e) return;
+    ask('Remove this drink?', [], () => { removeEntry(S, e.id); commit(); },
+      { text: `${e.name} · ${whoLabel(e)} · ${money(e.price)}. The supplies go back to stock.`, ok: 'Remove' });
+  },
+  settle(id) {
+    const p = S.people.find(x => x.id === Number(id)), due = openAmount(S, p.id);
+    ask('Settle tab', [], () => { settle(S, p.id); commit(); toast(`${p.name} paid ${money(due)}.`); },
+      { text: `${p.name} pays ${money(due)} now?`, ok: 'Paid' });
+  },
+  delPerson(id) {
+    S.people = S.people.filter(p => p.id !== Number(id));
+    if (S.who === Number(id)) S.who = 'walkin';
+    commit();
+  },
+  buy(k) {
+    const g = S.ingredients[k];
+    ask(`Purchase: ${g.name}`, [
+      { name: 'qty', label: `Quantity (${g.unit})${g.unit === 'g' ? ' — 1 kg = 1000' : g.unit === 'ml' ? ' — 1 L = 1000' : ''}`, type: 'number' },
+      { name: 'paid', label: 'Total paid (USD)', type: 'number' },
+      { name: 'note', label: 'Note (shop, roaster…)', optional: true },
+    ], v => { if (v.qty > 0) { purchase(S, k, v.qty, v.paid, Date.now(), v.note); commit(); } });
+  },
+  count(k) {
+    const g = S.ingredients[k];
+    ask(`Actual level: ${g.name}`, [
+      { name: 'level', label: `What is really left (${g.unit})`, type: 'number', value: Math.round(g.stock) },
+      { name: 'note', label: 'Note (waste, spill, recount…)', optional: true },
+    ], v => { adjust(S, k, v.level, Date.now(), v.note); commit(); });
+  },
+  editIng(k) {
+    const g = S.ingredients[k];
+    ask(`Edit: ${g.name}`, [
+      { name: 'cost', label: `Cost per ${g.unit} (USD)`, type: 'number', value: +g.cost.toFixed(5) },
+      { name: 'low', label: `Low-stock alert at (${g.unit}, 0 = off)`, type: 'number', value: g.low },
+    ], v => { g.cost = v.cost; g.low = v.low; commit(); });
+  },
+  delMove(id) {
+    const m = S.moves.find(x => x.id === Number(id));
+    if (!m) return;
+    ask('Remove this movement?', [], () => { removeMove(S, m.id); commit(); },
+      { text: `${S.ingredients[m.ing].name}: ${m.qty > 0 ? '+' : ''}${amount(m.qty, S.ingredients[m.ing].unit)} will be reversed.`, ok: 'Remove' });
+  },
+  period(id) { ui.period = id; render(); },
+  newLoc() {
+    ask('New location', [{ name: 'loc', label: 'Campsite / town' }], v => {
+      if (!v.loc) return;
+      if (!S.locations.includes(v.loc)) S.locations.push(v.loc);
+      S.location = v.loc; commit();
+    });
+  },
+  useLoc(i) { S.location = S.locations[Number(i)]; commit(); },
+  delLoc(i) {
+    const [gone] = S.locations.splice(Number(i), 1);
+    if (S.location === gone) S.location = S.locations.at(-1) || '';
+    commit();
+  },
+  newProduct() { productForm(null, p => { if (p.name) { S.products.push({ id: 'p' + S.seq++, ...p }); commit(); } }); },
+  editProduct(id) {
+    const p = S.products.find(x => x.id === id);
+    productForm(p, v => { Object.assign(p, v); commit(); });
+  },
+  delProduct(id) {
+    const p = S.products.find(x => x.id === id);
+    ask('Remove from menu?', [], () => { S.products = S.products.filter(x => x.id !== id); commit(); },
+      { text: `${p.name}. Past sales stay in the history.`, ok: 'Remove' });
+  },
+  async export() {
+    const name = `cafe-kontiki-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    const json = JSON.stringify(S, null, 1);
+    // iPhone home-screen apps cannot always download a file: use the share sheet there (Save to Files, AirDrop…)
+    try {
+      const file = new File([json], name, { type: 'application/json' });
+      if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: 'Café Kon-Tiki backup' }); return; }
+    } catch (err) {
+      if (err.name === 'AbortError') return;   // share sheet dismissed
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  },
+  import() { $('#importFile').click(); },
+  reset() {
+    ask('Erase everything?', [{ name: 'word', label: 'Type ERASE to confirm' }],
+      v => { if (v.word === 'ERASE') { S = defaultState(); commit(); toast('Reset to defaults.'); } }, { ok: 'Erase' });
+  },
+  selftest() {
+    const r = selfTest(), d = $('#dlg');
+    d.innerHTML = `<h2>Self-test ${r.fail ? 'FAILED' : 'passed'}</h2><pre>${esc(r.out.join('\n'))}</pre>
+      <div class="row" style="justify-content:flex-end;margin-top:12px"><button id="dlgCancel">Close</button></div>`;
+    $('#dlgCancel').onclick = () => d.close();
+    d.showModal();
+  },
+};
+
+document.addEventListener('click', ev => {
+  const nav = ev.target.closest('nav button');
+  if (nav) { ui.tab = nav.dataset.tab; render(); window.scrollTo(0, 0); return; }
+  const el = ev.target.closest('[data-act]');
+  if (el && el.type !== 'checkbox') actions[el.dataset.act](el.dataset.id, el);
+});
+document.addEventListener('change', ev => {
+  if (ev.target.id === 'importFile' && ev.target.files[0]) {
+    ev.target.files[0].text().then(txt => {
+      const data = JSON.parse(txt);
+      if (!data.ingredients || !Array.isArray(data.entries)) throw new Error('Not a Café Kon-Tiki backup');
+      S = migrate(Object.assign(defaultState(), data)); commit(); toast('Backup imported.');
+    }).catch(err => toast('Import failed: ' + err.message));
+  }
+});
+
+render();
+
+// Offline support and durable storage (both need https or localhost)
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(err => console.error(err));
+if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
+</script>
+</body>
+</html>

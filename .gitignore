@@ -1,0 +1,5 @@
+# Backups hold customer names and sales: never publish them
+*backup*.json
+
+# Local tooling
+.claude/

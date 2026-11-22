@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#3b2a20">
+<title>Café Kon-Tiki</title>
+<style>
+:root{--bg:#f6f0e8;--card:#fffaf3;--ink:#2b1f18;--muted:#7a6a5d;--line:#e2d6c6;--brand:#3b2a20;--accent:#b5651d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 Georgia,"Times New Roman",serif}
+header{background:var(--brand);color:#f6f0e8;text-align:center;padding:36px 16px 28px}
+header h1{margin:0;font-size:34px;letter-spacing:.02em}
+header p{margin:6px 0 0;opacity:.85;font-style:italic}
+.lang{margin-top:18px;display:inline-flex;border:1px solid #f6f0e8;border-radius:999px;overflow:hidden}
+.lang button{font:14px system-ui,sans-serif;background:none;color:#f6f0e8;border:0;padding:7px 18px;cursor:pointer}
+.lang button.on{background:#f6f0e8;color:var(--brand);font-weight:700}
+main{max-width:560px;margin:0 auto;padding:8px 16px 40px}
+h2{font-size:14px;font-family:system-ui,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin:30px 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px 18px}
+.item{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:14px 0;border-bottom:1px dashed var(--line)}
+.item:last-child{border-bottom:0}
+.item b{font-size:20px}
+.item small{display:block;color:var(--muted);font-size:14px}
+.item .price{font-size:20px;font-weight:700;color:var(--accent);white-space:nowrap}
+ul{padding-left:20px;margin:0}
+li{margin-bottom:8px}
+p{margin:0 0 12px}
+footer{text-align:center;color:var(--muted);font-size:14px;padding:0 16px 32px}
+[data-lang]{display:none}
+body.en [data-lang=en], body.es [data-lang=es]{display:block}
+body.en span[data-lang=en], body.es span[data-lang=es], body.en small[data-lang=en], body.es small[data-lang=es]{display:inline}
+.item small[data-lang]{display:none}
+body.en .item small[data-lang=en], body.es .item small[data-lang=es]{display:block}
+</style>
+</head>
+<body class="en">
+<header>
+  <h1>☕ Café Kon-Tiki</h1>
+  <p data-lang="en">Espresso from a motorhome, somewhere in South America</p>
+  <p data-lang="es">Espresso desde una casa rodante, en algún lugar de Sudamérica</p>
+  <div class="lang"><button data-set="en" class="on">English</button><button data-set="es">Español</button></div>
+</header>
+<main>
+  <h2><span data-lang="en">Menu</span><span data-lang="es">Carta</span></h2>
+  <div class="card">
+    <div class="item"><div><b>Espresso</b>
+      <small data-lang="en">Double shot, freshly ground</small><small data-lang="es">Doble, recién molido</small></div>
+      <span class="price">US$ 1.00</span></div>
+    <div class="item"><div><b>Americano</b>
+      <small data-lang="en">Double shot with hot water</small><small data-lang="es">Espresso doble con agua caliente</small></div>
+      <span class="price">US$ 1.50</span></div>
+    <div class="item"><div><b>Cappuccino</b>
+      <small data-lang="en">With almond milk</small><small data-lang="es">Con leche de almendras</small></div>
+      <span class="price">US$ 2.50</span></div>
+  </div>
+
+  <h2><span data-lang="en">How it works</span><span data-lang="es">Cómo funciona</span></h2>
+  <ul data-lang="en">
+    <li>Knock on the Kon-Tiki, or wave if you see me around the campsite.</li>
+    <li>Bring your own mug if you have one.</li>
+    <li>Pay in cash (US dollars), or open a tab and settle before you leave.</li>
+    <li>Nobody home? Try again a bit later. The machine is never far.</li>
+  </ul>
+  <ul data-lang="es">
+    <li>Toca la puerta de la Kon-Tiki, o salúdame si me ves por el camping.</li>
+    <li>Trae tu propia taza si tienes una.</li>
+    <li>Paga en efectivo (dólares), o abre una cuenta y la arreglamos antes de que te vayas.</li>
+    <li>¿No hay nadie? Vuelve un poco más tarde. La máquina nunca está lejos.</li>
+  </ul>
+
+  <h2><span data-lang="en">The Kon-Tiki</span><span data-lang="es">La Kon-Tiki</span></h2>
+  <p data-lang="en">Kon-Tiki is a motorhome travelling overland across South America, one campsite at a time. Right now it is in Ecuador. On board there is a proper espresso machine and a bag of specialty beans.</p>
+  <p data-lang="es">La Kon-Tiki es una casa rodante que recorre Sudamérica por tierra, de camping en camping. Ahora está en Ecuador. A bordo hay una máquina de espresso de verdad y una bolsa de café de especialidad.</p>
+
+  <h2><span data-lang="en">The idea</span><span data-lang="es">La idea</span></h2>
+  <p data-lang="en">This is not really a business. It is an excuse to meet the neighbours. The prices only cover the beans and the milk, and the conversation is free. Pull up a chair.</p>
+  <p data-lang="es">Esto no es realmente un negocio. Es una excusa para conocer a los vecinos. Los precios solo cubren el café y la leche, y la conversación es gratis. Acerca una silla.</p>
+</main>
+<footer>Café Kon-Tiki</footer>
+<script>
+const setLang = l => {
+  document.body.className = l;
+  document.documentElement.lang = l;
+  document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.set === l));
+};
+document.querySelectorAll('.lang button').forEach(b => b.onclick = () => setLang(b.dataset.set));
+if ((navigator.language || '').toLowerCase().startsWith('es')) setLang('es');
+</script>
+</body>
+</html>
