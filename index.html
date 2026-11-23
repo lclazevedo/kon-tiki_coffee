@@ -320,6 +320,14 @@ function selfTest() {
   const d = defaultState(0); d.cup = true;
   for (let i = 0; i < 5; i++) { addDrink(d, 'espresso', 'walkin', 1); addDrink(d, 'cappuccino', 'walkin', 1); }
   eq('notes example: 5 x (1.00 - 0.55) + 5 x (2.50 - 1.01)', stats(d).profit, 9.7);
+  // Backup reminder
+  const b = defaultState(0);
+  eq('no reminder with no data', backupDue(b, 1e9), false);
+  addDrink(b, 'espresso', 'walkin', 1);
+  eq('reminder when never backed up', backupDue(b, 1e9), true);
+  b.lastBackup = 1e9;
+  eq('no reminder 6 days after a backup', backupDue(b, 1e9 + 6 * 864e5), false);
+  eq('reminder 7 days after a backup', backupDue(b, 1e9 + 7 * 864e5), true);
   out.push(fail ? `${fail} FAILED` : `ALL ${out.length} PASSED`);
   return { fail, out };
 }
@@ -348,6 +356,12 @@ function migrate(s) {
   s.cup = false;   // disposable cups are not used; the option was removed from the UI
   if (s.location && !s.locations.includes(s.location)) s.locations.push(s.location);
   return s;
+}
+// Data lives only on this device: nudge for a backup once it is a week old (or was never made)
+const BACKUP_EVERY = 7 * 864e5;
+function backupDue(s, now = Date.now()) {
+  if (!s.entries.length && !s.moves.some(m => m.id > 0)) return false;
+  return !s.lastBackup || now - s.lastBackup >= BACKUP_EVERY;
 }
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(S)); }
@@ -391,6 +405,8 @@ const views = {
     const today = S.entries.filter(e => e.ts >= startOfDay()).reverse();
     const pending = S.entries.filter(e => e.kind === 'sale' && !e.paidTs).reduce((a, e) => a + e.price, 0);
     return `
+      ${backupDue(S) ? `<button class="banner" data-act="export" style="width:100%;text-align:left;font:inherit;cursor:pointer">${
+        S.lastBackup ? `Last backup ${Math.floor((Date.now() - S.lastBackup) / 864e5)} days ago.` : 'No backup yet.'} Tap to export one.</button>` : ''}
       ${low.length ? `<div class="banner">Low stock: ${low.map(g => `${esc(g.name)} (${amount(g.stock, g.unit)})`).join(', ')}</div>` : ''}
       ${pending > 0 ? `<div class="card row between"><span>Pending on tabs</span><b class="warn">${money(pending)}</b></div>` : ''}
       <h2>Tap a drink</h2>
@@ -515,7 +531,8 @@ const views = {
         <button class="small danger" data-act="delProduct" data-id="${esc(p.id)}">✕</button></td></tr>`).join('')}</table></div>
       <h2>Backup</h2>
       <div class="card">
-        <p class="muted" style="margin-top:0">Everything is stored only in this browser on this device. Export a backup regularly.</p>
+        <p class="muted" style="margin-top:0">Everything is stored only in this browser on this device. Export a backup regularly.
+          Last backup: <b>${S.lastBackup ? `${day(S.lastBackup)} ${time(S.lastBackup)}` : 'never'}</b>.</p>
         <div class="row"><button class="primary" data-act="export">Export backup</button>
         <button data-act="import">Import backup</button>
         <button data-act="selftest">Run self-test</button>
@@ -713,19 +730,23 @@ const actions = {
   },
   async export() {
     const name = `cafe-kontiki-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    const prev = S.lastBackup;
+    S.lastBackup = Date.now();                 // stored inside the file too, so an import keeps it
     const json = JSON.stringify(S, null, 1);
+    const done = () => { commit(); toast('Backup exported.'); };
     // iPhone home-screen apps cannot always download a file: use the share sheet there (Save to Files, AirDrop…)
     try {
       const file = new File([json], name, { type: 'application/json' });
-      if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: 'Café Kon-Tiki backup' }); return; }
+      if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: 'Café Kon-Tiki backup' }); return done(); }
     } catch (err) {
-      if (err.name === 'AbortError') return;   // share sheet dismissed
+      if (err.name === 'AbortError') { S.lastBackup = prev; return; }   // share sheet dismissed: no backup made
     }
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
     a.download = name;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    done();
   },
   import() { $('#importFile').click(); },
   reset() {
@@ -752,7 +773,9 @@ document.addEventListener('change', ev => {
     ev.target.files[0].text().then(txt => {
       const data = JSON.parse(txt);
       if (!data.ingredients || !Array.isArray(data.entries)) throw new Error('Not a Café Kon-Tiki backup');
-      S = migrate(Object.assign(defaultState(), data)); commit(); toast('Backup imported.');
+      S = migrate(Object.assign(defaultState(), data));
+      S.lastBackup = S.lastBackup || ev.target.files[0].lastModified || Date.now();   // the imported file is itself a backup
+      commit(); toast('Backup imported.');
     }).catch(err => toast('Import failed: ' + err.message));
   }
 });
