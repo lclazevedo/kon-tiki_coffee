@@ -5,11 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#3b2a20">
 <title>Café Kon-Tiki</title>
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{--bg:#f6f0e8;--card:#fffaf3;--ink:#2b1f18;--muted:#7a6a5d;--line:#e2d6c6;--brand:#3b2a20;--accent:#b5651d}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 Georgia,"Times New Roman",serif}
 header{background:var(--brand);color:#f6f0e8;text-align:center;padding:36px 16px 28px}
+header .logo{display:block;width:150px;height:150px;margin:0 auto 14px;border-radius:50%;border:4px solid #f6f0e8}
 header h1{margin:0;font-size:34px;letter-spacing:.02em}
 header p{margin:6px 0 0;opacity:.85;font-style:italic}
 .lang{margin-top:18px;display:inline-flex;border:1px solid #f6f0e8;border-radius:999px;overflow:hidden}
@@ -36,7 +39,8 @@ body.en .item small[data-lang=en], body.es .item small[data-lang=es]{display:blo
 </head>
 <body class="en">
 <header>
-  <h1>☕ Café Kon-Tiki</h1>
+  <img class="logo" src="logo.jpg" alt="A carved tiki sipping an espresso">
+  <h1>Café Kon-Tiki</h1>
   <p data-lang="en">Espresso from a motorhome, somewhere in South America</p>
   <p data-lang="es">Espresso desde una casa rodante, en algún lugar de Sudamérica</p>
   <div class="lang"><button data-set="en" class="on">English</button><button data-set="es">Español</button></div>

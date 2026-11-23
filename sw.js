@@ -1,8 +1,8 @@
 // Café Kon-Tiki service worker: keeps the app usable with no connection.
 // Strategy: answer from the cache at once, refresh the cache in the background when online.
 // An updated version therefore shows up on the second launch after it was published.
-const CACHE = 'cafe-kontiki-shell-v1';
-const SHELL = ['./', './index.html', './menu.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+const CACHE = 'cafe-kontiki-shell-v2';
+const SHELL = ['./', './index.html', './menu.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './logo.jpg'];
 
 self.addEventListener('install', ev => {
   ev.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
